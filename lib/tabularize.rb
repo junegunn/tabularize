@@ -6,6 +6,12 @@ module Tabularize
     :align => :left
   }
 
+  # Formats two-dimensional tabular data.
+  # One-dimensional data (e.g. Array of Strings) is treated as tabular data 
+  # of which each row has only one column.
+  # @param [Enumerable] table_data
+  # @param [Hash] options Formatting options.
+  # @return [Array] Two-dimensional Array of formatted cells.
   def self.it table_data, options = {}
     raise ArgumentError.new("Not enumerable") unless 
         table_data.respond_to?(:each)

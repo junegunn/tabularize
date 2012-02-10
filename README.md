@@ -37,7 +37,7 @@ ap data
 ap Tabularize.it(data).map { |row| row.join ' | ' }
 ```
 
-# Output
+#### Output
 
 ```
 [
@@ -74,10 +74,9 @@ ap Tabularize.it(data).map { |row| row.join ' | ' }
 ]
 ```
 
-#### Alignment
+#### Alignments
 
 ```ruby
-
 puts Tabularize.it(data, :align => :right).map { |row| row.join ' | ' }
 puts
 puts Tabularize.it(data, :align => :center).map { |row| row.join ' | ' }
@@ -96,6 +95,7 @@ Hong Gildong |     HR      |          Nowhere           | 555-5555
 ```
 
 #### Padding with other characters
+
 ```ruby
 puts Tabularize.it(data, :pad => '_').map { |row| row.join ' | ' }
 ```
