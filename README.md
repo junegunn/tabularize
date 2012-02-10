@@ -2,6 +2,7 @@ tabularize
 ==========
 
 Formatting tabular data with paddings.
+
 Inspired by tabular.vim (https://github.com/godlygeek/tabular)
 
 Installation
