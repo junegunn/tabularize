@@ -1,0 +1,17 @@
+PATH
+  remote: .
+  specs:
+    tabularize (0.1.0)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    awesome_print (1.0.2)
+
+PLATFORMS
+  java
+  ruby
+
+DEPENDENCIES
+  awesome_print
+  tabularize!
