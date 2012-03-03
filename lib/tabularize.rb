@@ -19,7 +19,7 @@ module Tabularize
     options = DEFAULT_OPTIONS.merge(options)
     pad     = options[:pad].to_s
     align   = options[:align]
-    raise ArgumentError.new("Invalid alignment") unless pad.length == 1
+    raise ArgumentError.new("Invalid padding") unless pad.length == 1
     raise ArgumentError.new("Invalid alignment") unless
         [:left, :right, :center].include?(align)
 
