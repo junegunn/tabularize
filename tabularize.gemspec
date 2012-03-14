@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
 
   # specify any dependencies here; for example:
   s.add_development_dependency "awesome_print"
+  s.add_runtime_dependency 'unicode-display_width', '~> 0.1.1'
 end

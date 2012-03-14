@@ -3,7 +3,8 @@ require "tabularize/version"
 module Tabularize
   DEFAULT_OPTIONS = {
     :pad => ' ',
-    :align => :left
+    :align => :left,
+    :unicode_display => false
   }
 
   # Formats two-dimensional tabular data.
@@ -19,9 +20,18 @@ module Tabularize
     options = DEFAULT_OPTIONS.merge(options)
     pad     = options[:pad].to_s
     align   = options[:align]
+    unicode = options[:unicode_display]
     raise ArgumentError.new("Invalid padding") unless pad.length == 1
     raise ArgumentError.new("Invalid alignment") unless
         [:left, :right, :center].include?(align)
+
+    l = 
+      if unicode
+        require 'unicode/display_width'
+        :display_width
+      else
+        :length
+      end
 
     rows       = []
     max_widths = []
@@ -29,7 +39,7 @@ module Tabularize
       rows << row = [*row].map(&:to_s).map(&:chomp)
 
       row.each_with_index do |cell, idx|
-        max_widths[idx] = [ cell.length, max_widths[idx] || 0 ].max
+        max_widths[idx] = [ cell.send(l), max_widths[idx] || 0 ].max
       end
     end
 
@@ -38,6 +48,9 @@ module Tabularize
       row.map { |str|
         idx += 1
         w = max_widths[idx]
+        if unicode
+          w += str.length - str.display_width
+        end
         case align
         when :left
           str.ljust(w, pad)

@@ -101,19 +101,26 @@ class TestTabularize < Test::Unit::TestCase
     end
   end
 
+  # TODO: Need assertion
   def test_tabularize_csv
-    data = CSV.read(File.join(File.dirname(__FILE__), 'test.csv'), :col_sep => '|')
-    ap data
-    output = Tabularize.it(data).map { |row| row.join ' | ' }
-    ap output
-    puts
-    puts output
+    {
+      'test.csv' => false,
+      'test_unicode.csv' => true
+    }.each do |file, unicode|
+      data = CSV.read(File.join(File.dirname(__FILE__), file), :col_sep => '|')
+      ap data
+      output = Tabularize.it(data, :unicode_display => unicode).map { |row| row.join ' | ' }
+      ap output
+      puts
+      puts output
 
-    puts Tabularize.it(data, :align => :right).map { |row| row.join ' | ' }
-    puts
-    puts Tabularize.it(data, :align => :center).map { |row| row.join ' | ' }
-    puts
-    puts Tabularize.it(data, :pad => '_').map { |row| row.join ' | ' }
+      puts Tabularize.it(data, :align => :right, :unicode_display => unicode).map { |row| row.join ' | ' }
+      puts
+      puts Tabularize.it(data, :align => :center, :unicode_display => unicode).map { |row| row.join ' | ' }
+      puts
+      puts Tabularize.it(data, :pad => '_', :unicode_display => unicode).map { |row| row.join ' | ' }
+
+    end
   end
 
   def test_invalid_arguments

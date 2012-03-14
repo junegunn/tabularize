@@ -108,6 +108,20 @@ Average Joe_ | Engineering | Somewhere over the rainbow | N/A_____
 Hong Gildong | HR_________ | Nowhere___________________ | 555-5555
 ```
 
+#### CJK wide characters
+
+```ruby
+puts Tabularize.it(data, :unicode_display => true).map { |row| row.join ' | ' }
+```
+
+```
+Name         | Dept        | Location                    | Phone
+John Doe     | Finance     | Los Angeles, CA 90089       | 555-1555
+Average Joe  | Engineering | Somewhere over the rainbow  | N/A
+Hong Gildong | HR          | Nowhere                     | 555-5555
+홍길동       | 탁상 3부    | 서울역 3번 출구 김씨 옆자리 | N/A
+```
+
 Copyright
 ---------
 
