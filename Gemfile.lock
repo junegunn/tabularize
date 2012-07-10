@@ -1,12 +1,13 @@
 PATH
   remote: .
   specs:
-    tabularize (0.1.1)
+    tabularize (0.2.0)
       unicode-display_width (~> 0.1.1)
 
 GEM
   remote: http://rubygems.org/
   specs:
+    ansi (1.4.3)
     awesome_print (1.0.2)
     unicode-display_width (0.1.1)
 
@@ -15,5 +16,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  ansi
   awesome_print
   tabularize!

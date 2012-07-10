@@ -6,6 +6,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'tabularize'
 require 'awesome_print'
 require 'csv'
+require 'ansi'
 
 class TestTabularize < Test::Unit::TestCase
   DATA0 = %w[a aa aaa aaaa aaaaa]
@@ -104,21 +105,24 @@ class TestTabularize < Test::Unit::TestCase
   # TODO: Need assertion
   def test_tabularize_csv
     {
-      'test.csv' => false,
-      'test_unicode.csv' => true
-    }.each do |file, unicode|
+      'test.csv' => [false, false],
+      'test_unicode.csv' => [true, false],
+      'test_unicode_ansi.csv' => [true, true]
+    }.each do |file, unicode_ansi|
+      unicode, ansi = unicode_ansi
+      opts = { :unicode => unicode, :ansi => ansi }
       data = CSV.read(File.join(File.dirname(__FILE__), file), :col_sep => '|')
       ap data
-      output = Tabularize.it(data, :unicode_display => unicode).map { |row| row.join ' | ' }
+      output = Tabularize.it(data, opts).map { |row| row.join '|' }
       ap output
       puts
       puts output
 
-      puts Tabularize.it(data, :align => :right, :unicode_display => unicode).map { |row| row.join ' | ' }
+      puts Tabularize.it(data, opts.merge(:align => :right)).map { |row| row.join '|' }
       puts
-      puts Tabularize.it(data, :align => :center, :unicode_display => unicode).map { |row| row.join ' | ' }
+      puts Tabularize.it(data, opts.merge(:align => :center)).map { |row| row.join '|' }
       puts
-      puts Tabularize.it(data, :pad => '_', :unicode_display => unicode).map { |row| row.join ' | ' }
+      puts Tabularize.it(data, opts.merge(:pad => '_')).map { |row| row.join '|' }
 
     end
   end
@@ -127,6 +131,27 @@ class TestTabularize < Test::Unit::TestCase
     assert_raise(ArgumentError) { Tabularize.it(5) }
     assert_raise(ArgumentError) { Tabularize.it("hello") }
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :align => :noidea) }
+    assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :align => [:center, :top]) }
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => 'long') }
+    assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => ' ', :pad_left => -1) }
+    assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => ' ', :pad_left => '') }
+    assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => ' ', :pad_right => -1) }
+    assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => ' ', :pad_right => '') }
+  end
+
+  def test_table
+    table = Tabularize.new :align => :center, :pad => ',',
+      :pad_left => 3, :pad_right => 5, :hborder => '=', :vborder => 'I', :iborder => '#'
+    table << DATA2[0]
+    table.separator!
+    table << DATA2[0]
+    table.separator!
+    table.separator!
+    table << DATA2[1]
+    table.separator!
+    table << DATA2[2]
+    table << DATA2[3]
+
+    puts table.to_s
   end
 end

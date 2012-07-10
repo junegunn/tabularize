@@ -1,3 +1,3 @@
-module Tabularize
-  VERSION = "0.1.1"
+class Tabularize
+  VERSION = "0.2.0"
 end
