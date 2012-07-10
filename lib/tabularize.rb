@@ -22,6 +22,7 @@ class Tabularize
     :pad_right => 1,
   }
 
+  # @since 0.2.0
   def initialize options = {}
     @rows    = []
     @seps    = Hash.new { |h, k| h[k] = 0 }
@@ -30,18 +31,21 @@ class Tabularize
                merge(options)
   end
 
+  # @since 0.2.0
   def separator!
     @seps[@rows.length] += 1
     nil
   end
   
   # @param [Array] row
+  # @since 0.2.0
   def << row
     @rows << row
     nil
   end
 
   # @return [String]
+  # @since 0.2.0
   def to_s
     rows = Tabularize.it(@rows, @options)
     return nil if rows.empty?
@@ -73,6 +77,7 @@ class Tabularize
   # @param [Boolean] unicode Set to true when the given String can include CJK wide characters
   # @param [Boolean] ansi Set to true When the given String can include ANSI codes
   # @return [Fixnum] Display width of the given String
+  # @since 0.2.0
   def self.cell_width str, unicode, ansi
     str = str.gsub(/\e\[\d*(?:;\d+)*m/, '') if ansi
     str.send(unicode ? :display_width : :length)

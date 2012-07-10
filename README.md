@@ -2,7 +2,7 @@ tabularize
 ==========
 
 Formatting tabular data with paddings.
-tabularize correctly handles CJK wide characters and ANSI codes.
+`tabularize` correctly handles CJK wide characters and ANSI codes.
 
 Inspired by tabular.vim (https://github.com/godlygeek/tabular)
 
@@ -49,14 +49,9 @@ puts table
  * `:vborder` Character for vertical border
  * `:iborder` Character for intersection point
 * Alignment
- * `:align` Cell alignment
-  * `:left`
-  * `:center`
-  * `:right`
-  * Can be an Array of three options
+ * `:align` Cell alignment. `:left`, `:center`, `:right`, or Array of the three options
 
-
-```
+```ruby
 table = Tabularize.new :pad => '.', :pad_left => 2, :pad_right => 0,
                        :hborder => '~', :vborder => 'I', :iborder => '#',
                        :align => [:left, :center, :right]
@@ -81,9 +76,9 @@ I..홍길동.....I...탁상 3부..I..서울역 3번 출구 김씨 옆자리I....
 Tabularize.it
 -------------
 `Tabularize` table generator is built on top of low-level `Tabularize.it` class method.
-(actually it was the only method in versions prior to 0.2.0)
+(actually it was the only method provided in the earlier versions prior to 0.2.0)
 
-It simply returns two-dimensional array of padded Strings,
+It simply returns two-dimensional array of padded and aligned Strings,
 so the rest of the formatting is pretty much up to you.
 
 ### Example: formatting CSV data
@@ -184,7 +179,8 @@ Hong Gildong | HR_________ | Nowhere___________________ | 555-5555
 ANSI codes and CJK wide characters
 ----------------------------------
 `tabularize` correctly calculates each cell width even in the presence of ANSI codes and CJK wide characters.
-If your data doesn't have any of them, `tabularize` can process it more efficiently by not handling them.
+If your data doesn't have any of them, unset `:unicode` and `:ansi` options
+so that `tabularize` can process data more efficiently.
 
 ```ruby
 table = Tabularize.new :unicode => false, :ansi => false
