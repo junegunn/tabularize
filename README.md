@@ -40,6 +40,22 @@ puts table
 
 ### With options: Padding, border and alignment
 
+* Padding
+ * `:pad` Padding character
+ * `:pad_left` Size of left padding
+ * `:pad_right` Size of right padding
+* Border
+ * `:hborder` Character for horizontal border
+ * `:vborder` Character for vertical border
+ * `:iborder` Character for intersection point
+* Alignment
+ * `:align` Cell alignment
+  * `:left`
+  * `:center`
+  * `:right`
+  * Can be an Array of three options
+
+
 ```
 table = Tabularize.new :pad => '.', :pad_left => 2, :pad_right => 0,
                        :hborder => '~', :vborder => 'I', :iborder => '#',
