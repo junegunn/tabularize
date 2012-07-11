@@ -1,3 +1,8 @@
+0.2.1
+-----
+- Multi-line support
+- Vertical alignment
+
 0.2.0
 -----
 - Tabularize::Table class for easy tabularization (doh!)

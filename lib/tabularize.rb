@@ -5,6 +5,7 @@ require 'unicode/display_width'
 class Tabularize
   DEFAULT_OPTIONS = {
     :align     => :left,
+    :valign    => :top,
     :pad       => ' ',
     :pad_left  => 0,
     :pad_right => 0,
@@ -63,10 +64,16 @@ class Tabularize
     output = StringIO.new
     output.puts separator
     rows.each_with_index do |row, idx|
+      row = row.map { |v| v.lines.to_a.map(&:chomp) }
+      height = row[0] ? row[0].count : 1
       @seps[idx].times do
         output.puts separator
       end
-      output.puts v + row.join(v) + v
+      (0...height).each do |line|
+        output.puts v + row.map { |lines|
+          lines[line] || @options[:pad] * Tabularize.cell_width(lines[0], u, a)
+        }.join(v) + v
+      end
     end
     output.puts separator
     output.string
@@ -97,7 +104,8 @@ class Tabularize
     pad     = options[:pad].to_s
     padl    = options[:pad_left]
     padr    = options[:pad_right]
-    align   = [options[:align]].flatten
+    align   = [*options[:align]]
+    valign  = [*options[:valign]]
     unicode = options[:unicode]
     ansi    = options[:ansi]
 
@@ -113,42 +121,69 @@ class Tabularize
     unless align.all? { |a| [:left, :right, :center].include?(a) }
       raise ArgumentError.new("Invalid alignment")
     end
+    unless valign.all? { |a| [:top, :bottom, :middle].include?(a) }
+      raise ArgumentError.new("Invalid vertical alignment")
+    end
 
-    rows       = []
-    max_widths = []
-    table_data.each do |row|
-      rows << row = [*row].map(&:to_s).map(&:chomp)
+    rows        = []
+    max_widths  = []
+    max_heights = []
+    table_data.each_with_index do |row, ridx|
+      rows << row = [*row].map(&:to_s)
 
       row.each_with_index do |cell, idx|
-        max_widths[idx] = [ Tabularize.cell_width(cell, unicode, ansi), max_widths[idx] || 0 ].max
+        nlines = 0
+        cell.lines do |c|
+          max_widths[idx] = [ Tabularize.cell_width(c.chomp, unicode, ansi), max_widths[idx] || 0 ].max
+          nlines += 1
+        end
+        max_heights[ridx] = [ nlines, max_heights[ridx] || 1 ].max
       end
     end
 
+    ridx = -1
     rows.map { |row| 
+      ridx += 1
       idx = -1
-      row.map { |str|
-        alen = 
-          if ansi
-            Tabularize.cell_width(str, false, false) -
-              Tabularize.cell_width(str, false, true)
-          else
-            0
-          end
-        slen = str.length - alen
-
+      max_height = max_heights[ridx]
+      row.map { |cell|
         idx += 1
-        w = max_widths[idx]
-        w += str.length - str.display_width if unicode
-        pad * padl + 
-          case align[idx] || align.last
-          when :left
-            str.ljust(w + alen, pad)
-          when :right
-            str.rjust(w + alen, pad)
-          when :center
-            str.rjust((w - slen) / 2 + slen + alen, pad).ljust(w + alen, pad)
-          end +
-            pad * padr
+        lines = cell.lines.to_a
+        offset =
+          case valign[idx] || valign.last
+          when :top
+            0
+          when :bottom
+            max_height - lines.length
+          when :middle
+            (max_height - lines.length) / 2
+          end
+
+        (0...max_height).map { |ln|
+          ln -= offset
+          str = (ln >= 0 && lines[ln]) ? lines[ln].chomp : (pad * max_widths[idx])
+          alen = 
+            if ansi
+              Tabularize.cell_width(str, false, false) -
+                Tabularize.cell_width(str, false, true)
+            else
+              0
+            end
+          slen = str.length - alen
+
+          w = max_widths[idx]
+          w += str.length - str.display_width if unicode
+          pad * padl + 
+            case align[idx] || align.last
+            when :left
+              str.ljust(w + alen, pad)
+            when :right
+              str.rjust(w + alen, pad)
+            when :center
+              str.rjust((w - slen) / 2 + slen + alen, pad).ljust(w + alen, pad)
+            end +
+              pad * padr
+        }.join($/)
       }
     }
   end

@@ -2,7 +2,8 @@ tabularize
 ==========
 
 Formatting tabular data with paddings.
-`tabularize` correctly handles CJK wide characters and ANSI codes.
+[tabularize](https://github.com/junegunn/tabularize) correctly handles
+CJK (Chinese, Japanese and Korean) wide characters and ANSI codes.
 
 Inspired by tabular.vim (https://github.com/godlygeek/tabular)
 
@@ -50,16 +51,18 @@ puts table
  * `:iborder` Character for intersection point
 * Alignment
  * `:align` Cell alignment. `:left`, `:center`, `:right`, or Array of the three options
+ * `:valign` Cell vertical alignment. `:top`, `:middle`, `:bottom`, or Array of the three options
 
 ```ruby
-table = Tabularize.new :pad => '.', :pad_left => 2, :pad_right => 0,
+table = Tabularize.new :pad     => '.', :pad_left => 2,  :pad_right => 0,
                        :hborder => '~', :vborder => 'I', :iborder => '#',
-                       :align => [:left, :center, :right]
+                       :align   => [:left, :center, :right],
+                       :valign  => [:top, :bottom, :middle, :middle]
 table << %w[Name Dept Location Phone]
 table.separator!
-table << ['John Doe', 'Finance', 'Los Angeles CA 90089', '555-1555']
+table << ['John Doe', 'Finance', 'Los Angeles CA 90089', "555-1555"]
 table << ['Average Joe', 'Engineering', 'Somewhere over the rainbow', 'N/A']
-table << ['홍길동', '탁상 3부', '서울역 3번 출구 김씨 옆자리', 'N/A']
+table << ['홍길동', '탁상 3부', "서울역 3번 출구 김씨 옆자리\n\n맞습니다", 'N/A']
 puts table
 ```
 
@@ -69,7 +72,9 @@ I..Name.......I.....Dept....I.....................LocationI.....PhoneI
 #~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
 I..John Doe...I....Finance..I.........Los Angeles CA 90089I..555-1555I
 I..Average JoeI..EngineeringI...Somewhere over the rainbowI.......N/AI
-I..홍길동.....I...탁상 3부..I..서울역 3번 출구 김씨 옆자리I.......N/AI
+I..홍길동.....I.............I..서울역 3번 출구 김씨 옆자리I..........I
+I.............I.............I.............................I.......N/AI
+I.............I...탁상 3부..I.....................맞습니다I..........I
 #~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
 ```
 
@@ -178,13 +183,24 @@ Hong Gildong | HR_________ | Nowhere___________________ | 555-5555
 
 ANSI codes and CJK wide characters
 ----------------------------------
-`tabularize` correctly calculates each cell width even in the presence of ANSI codes and CJK wide characters.
+[tabularize](https://github.com/junegunn/tabularize) correctly calculates each cell width even in the presence of ANSI codes and CJK wide characters.
 If your data doesn't have any of them, unset `:unicode` and `:ansi` options
-so that `tabularize` can process data more efficiently.
+so that [tabularize](https://github.com/junegunn/tabularize) can process data more efficiently.
 
 ```ruby
 table = Tabularize.new :unicode => false, :ansi => false
 ```
+
+Related work
+------------
+I wasn't aware of [terminal-table](https://github.com/visionmedia/terminal-table)
+when I blindly started building [tabularize](https://github.com/junegunn/tabularize).
+It has more features and clearly is more mature than [tabularize](https://github.com/junegunn/tabularize),
+you should definitely check it out.
+
+There are a couple of things, however, [tabularize](https://github.com/junegunn/tabularize) does better:
+- It correctly formats cells containing CJK wide characters.
+- Vertical alignment for multi-line cells
 
 Copyright
 ---------
