@@ -64,7 +64,7 @@ class Tabularize
     output = StringIO.new
     output.puts separator
     rows.each_with_index do |row, idx|
-      row = row.map { |v| v.lines.to_a.map(&:chomp) }
+      row = row.map { |val| val.lines.to_a.map(&:chomp) }
       height = row[0] ? row[0].count : 1
       @seps[idx].times do
         output.puts separator
