@@ -50,8 +50,8 @@ puts table
  * `:vborder` Character for vertical border
  * `:iborder` Character for intersection point
 * Alignment
- * `:align` Cell alignment. `:left`, `:center`, `:right`, or Array of the three options
- * `:valign` Cell vertical alignment. `:top`, `:middle`, `:bottom`, or Array of the three options
+ * `:align` Horizontal alignment. `:left`, `:center`, `:right`, or Array of the three options
+ * `:valign` Vertical alignment. `:top`, `:middle`, `:bottom`, or Array of the three options
 
 ```ruby
 table = Tabularize.new :pad     => '.', :pad_left => 2,  :pad_right => 0,

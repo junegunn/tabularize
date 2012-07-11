@@ -75,6 +75,11 @@ class Tabularize
         }.join(v) + v
       end
     end
+
+    @seps[rows.length].times do
+      output.puts separator
+    end
+
     output.puts separator
     output.string
   end
