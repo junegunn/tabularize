@@ -167,7 +167,7 @@ Average Joe  | Engineering | Somewhere over the rainbow |   N/A
 Hong Gildong |     HR      |          Nowhere           | 555-5555
 ```
 
-#### Padding with other characters
+#### Padding with characters other than space
 
 ```ruby
 puts Tabularize.it(data, :pad => '_').map { |row| row.join ' | ' }
@@ -178,13 +178,13 @@ Name________ | Dept_______ | Location__________________ | Phone___
 John Doe____ | Finance____ | Los Angeles, CA 90089_____ | 555-1555
 Average Joe_ | Engineering | Somewhere over the rainbow | N/A_____
 Hong Gildong | HR_________ | Nowhere___________________ | 555-5555
-홍길동______ | 탁상 3부___ | 서울역 3번 출구 김씨 옆자리 | N/A
+홍길동______ | 탁상 3부___ | 서울역 3번 출구 김씨 옆자리 | N/A_____
 ```
 
 ANSI codes and CJK wide characters
 ----------------------------------
 [tabularize](https://github.com/junegunn/tabularize) correctly calculates each cell width even in the presence of ANSI codes and CJK wide characters.
-If your data doesn't have any of them, unset `:unicode` and `:ansi` options
+However, if your data doesn't have any of them, unset `:unicode` and `:ansi` in options hash,
 so that [tabularize](https://github.com/junegunn/tabularize) can process data more efficiently.
 
 ```ruby
