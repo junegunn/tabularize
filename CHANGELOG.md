@@ -1,3 +1,7 @@
+0.2.2
+-----
+- `screen_width` and `ellipsis` options to cut off trailing cells exceeding specified screen width
+
 0.2.1
 -----
 - Multi-line support

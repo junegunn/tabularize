@@ -16,6 +16,9 @@ class Tabularize
 
     :unicode   => true,
     :ansi      => true,
+
+    :ellipsis     => '>',
+    :screen_width => nil,
   }
 
   DEFAULT_OPTIONS_GENERATOR = {
@@ -51,15 +54,29 @@ class Tabularize
     rows = Tabularize.it(@rows, @options)
     return nil if rows.empty?
 
-    h = @options[:hborder]
-    v = @options[:vborder]
-    i = @options[:iborder]
-    u = @options[:unicode]
-    a = @options[:ansi]
+    h  = @options[:hborder]
+    v  = @options[:vborder]
+    i  = @options[:iborder]
+    vl = @options[:vborder]
+    il = @options[:iborder]
+    u  = @options[:unicode]
+    a  = @options[:ansi]
+    sw = @options[:screen_width]
+    el = @options[:ellipsis].length
 
-    separator = i + rows[0].map { |c|
-      h * Tabularize.cell_width(c, u, a)
-    }.join( i ) + i
+    separator = ''
+    rows[0].each_with_index do |c, idx|
+      new_sep = separator + i + h * Tabularize.cell_width(c, u, a)
+
+      if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
+        rows = rows.map { |line| line[0, idx] }
+        vl = il = @options[:ellipsis]
+        break
+      else
+        separator = new_sep
+      end
+    end
+    separator += il
 
     output = StringIO.new
     output.puts separator
@@ -70,9 +87,10 @@ class Tabularize
         output.puts separator
       end
       (0...height).each do |line|
-        output.puts v + row.map { |lines|
+        output.print v unless row.empty?
+        output.puts row.map { |lines|
           lines[line] || @options[:pad] * Tabularize.cell_width(lines[0], u, a)
-        }.join(v) + v
+        }.join(v) + vl
       end
     end
 
@@ -113,21 +131,25 @@ class Tabularize
     valign  = [*options[:valign]]
     unicode = options[:unicode]
     ansi    = options[:ansi]
+    screenw = options[:screen_width]
 
     unless pad.length == 1
       raise ArgumentError.new("Invalid padding") 
     end
     unless padl.is_a?(Fixnum) && padl >= 0
-      raise ArgumentError.new(":pad_left must be a non-negative Fixnum")
+      raise ArgumentError.new(":pad_left must be a non-negative integer")
     end
     unless padr.is_a?(Fixnum) && padr >= 0
-      raise ArgumentError.new(":pad_right must be a non-negative Fixnum")
+      raise ArgumentError.new(":pad_right must be a non-negative integer")
     end
     unless align.all? { |a| [:left, :right, :center].include?(a) }
       raise ArgumentError.new("Invalid alignment")
     end
     unless valign.all? { |a| [:top, :bottom, :middle].include?(a) }
       raise ArgumentError.new("Invalid vertical alignment")
+    end
+    unless screenw.nil? || (screenw.is_a?(Fixnum) && screenw > 0)
+      raise ArgumentError.new(":screen_width must be a positive integer")
     end
 
     rows        = []

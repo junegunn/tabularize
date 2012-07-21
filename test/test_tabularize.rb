@@ -140,6 +140,7 @@ class TestTabularize < Test::Unit::TestCase
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => ' ', :pad_left => '') }
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => ' ', :pad_right => -1) }
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :pad => ' ', :pad_right => '') }
+    assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :screen_width => -2) }
   end
 
   def test_table
@@ -191,5 +192,16 @@ I.............I...탁상 3부..I.....................맞습니다I..........I
     table.separator!
     table.separator!
     assert_equal output, table.to_s.strip
+  end
+
+  def test_screen_width
+    [1, 3, 9, 50, 80].each do |w|
+      t = Tabularize.new :screen_width => w
+      10.times do
+        t << ['12345'] * 80
+      end
+      puts t
+      assert t.to_s.lines.all? { |line| line.chomp.length <= w }
+    end
   end
 end
