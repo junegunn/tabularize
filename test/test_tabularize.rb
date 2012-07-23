@@ -243,8 +243,14 @@ I..This should change everything doh!I.............I............................
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#".strip
     assert_equal output, table.to_s.strip
     assert_equal output, table.to_s.strip
-    table << %w[a b c d e]
-    puts table.to_s
+
+    separator = '#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#'
+    line = 'I..a.................................I.......b.....I............................cI.........dI'
+    10.times do |i|
+      table << %w[a b c d]
+      expected = (output.lines.to_a[0..-2].map(&:chomp) + [line] * (i+1) + [separator]).join($/)
+      assert_equal expected, table.to_s
+    end
   end
 
   def test_screen_width

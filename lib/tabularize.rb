@@ -55,8 +55,8 @@ class Tabularize
     return nil if @rows.empty?
 
     # Invalidate cache if needed
-    num_cached_rows = (@cache[:rows] || []).length
-    analysis = Tabularize.analyze(@rows, @options.merge(@cache[:analysis] || {}))
+    num_cached_rows = @cache[:num_rows] || 0
+    analysis = Tabularize.analyze(@rows[num_cached_rows..-1], @options.merge(@cache[:analysis] || {}))
 
     unless @cache.empty?
       cmw = @cache[:analysis][:max_widths]
@@ -127,7 +127,7 @@ class Tabularize
     @cache = {
       :analysis  => analysis,
       :separator => separator,
-      :rows      => rows,
+      :num_rows  => @rows.length,
       :string_io => output,
       :last_seps => @seps[rows.length]
     }
