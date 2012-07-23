@@ -68,22 +68,22 @@ class TestTabularize < Test::Unit::TestCase
       :left =>
         [
           "a                   |aa  |aaa|aaaa",
-          "cccccccccccccccccccc",
-          "ddd                 |dddd|d  ",
+          "cccccccccccccccccccc|    |   |    ",
+          "ddd                 |dddd|d  |    ",
           "bbbb                |bbb |bb |b   "
         ],
       :right =>
         [
           "                   a|  aa|aaa|aaaa",
-          "cccccccccccccccccccc",
-          "                 ddd|dddd|  d",
+          "cccccccccccccccccccc|    |   |    ",
+          "                 ddd|dddd|  d|    ",
           "                bbbb| bbb| bb|   b"
         ],
       :center =>
         [
           "         a          | aa |aaa|aaaa",
-          "cccccccccccccccccccc",
-          "        ddd         |dddd| d ",
+          "cccccccccccccccccccc|    |   |    ",
+          "        ddd         |dddd| d |    ",
           "        bbbb        |bbb |bb | b  "
         ]
     }
@@ -96,36 +96,47 @@ class TestTabularize < Test::Unit::TestCase
       [ '.', '_' ].each do |pad|
         [:left, :right, :center].each do |align|
           result = Tabularize.it(data, :pad => pad, :align => align)
-          ap :align => align, :pad => pad, :from => data, :to => result.map { |r| r.join('|') }
           assert_equal RESULT[data][align], result.map { |row| row.join('|').gsub(pad, ' ') }
         end
       end
     end
   end
 
+  def test_analyze
+    data = []
+    data << %w[a bb ccc]
+    data << %w[aa bb cc]
+    data << %w[aaa bb cc]
+    data << %w[aaa bb cc] + ["dddd\neee"]
+    data << %w[f]
+    ret = Tabularize.analyze(data, :unicode => true, :ansi => true)
+    assert_equal [%w[a bb ccc].push(''), %w[aa bb cc].push(''), %w[aaa bb cc].push(''),
+                  %w[aaa bb cc] + ["dddd\neee"], %w[f] + [''] * 3], ret[:rows]
+    assert_equal [1, 1, 1, 2, 1], ret[:max_heights]
+    assert_equal [3, 2, 3, 4], ret[:max_widths]
+  end
+
   # TODO: Need assertion
   def test_tabularize_csv
+    sio = StringIO.new
+
     {
-      'test.csv' => [false, false],
-      'test_unicode.csv' => [true, false],
-      'test_unicode_ansi.csv' => [true, true]
+      'fixture/test.csv' => [false, false],
+      'fixture/test_unicode.csv' => [true, false],
+      'fixture/test_unicode_ansi.csv' => [true, true]
     }.each do |file, unicode_ansi|
       unicode, ansi = unicode_ansi
       opts = { :unicode => unicode, :ansi => ansi }
       data = CSV.read(File.join(File.dirname(__FILE__), file), :col_sep => '|')
-      ap data
       output = Tabularize.it(data, opts).map { |row| row.join '|' }
-      ap output
-      puts
-      puts output
 
-      puts Tabularize.it(data, opts.merge(:align => :right)).map { |row| row.join '|' }
-      puts
-      puts Tabularize.it(data, opts.merge(:align => :center)).map { |row| row.join '|' }
-      puts
-      puts Tabularize.it(data, opts.merge(:pad => '_')).map { |row| row.join '|' }
-
+      sio.puts output
+      sio.puts Tabularize.it(data, opts.merge(:align => :right)).map { |row| row.join '|' }
+      sio.puts Tabularize.it(data, opts.merge(:align => :center)).map { |row| row.join '|' }
+      sio.puts Tabularize.it(data, opts.merge(:pad => '_')).map { |row| row.join '|' }
     end
+
+    assert_equal File.read(File.join(File.dirname(__FILE__), 'fixture/tabularize_csv.txt')), sio.string
   end
 
   def test_invalid_arguments
@@ -156,17 +167,29 @@ class TestTabularize < Test::Unit::TestCase
     table << DATA2[2]
     table << DATA2[3]
 
-    puts table.to_s
+    assert_equal(
+'#============================#============#===========#============#
+I,,,,,,,,,,,,a,,,,,,,,,,,,,,,I,,,,aa,,,,,,I,,,aaa,,,,,I,,,aaaa,,,,,I
+#============================#============#===========#============#
+I,,,,,,,,,,,,a,,,,,,,,,,,,,,,I,,,,aa,,,,,,I,,,aaa,,,,,I,,,aaaa,,,,,I
+#============================#============#===========#============#
+#============================#============#===========#============#
+I,,,cccccccccccccccccccc,,,,,I,,,,,,,,,,,,I,,,,,,,,,,,I,,,,,,,,,,,,I
+#============================#============#===========#============#
+I,,,,,,,,,,,ddd,,,,,,,,,,,,,,I,,,dddd,,,,,I,,,,d,,,,,,I,,,,,,,,,,,,I
+I,,,,,,,,,,,bbbb,,,,,,,,,,,,,I,,,bbb,,,,,,I,,,bb,,,,,,I,,,,b,,,,,,,I
+#============================#============#===========#============#', table.to_s)
   end
 
   def test_table_complex
+    separator = '#~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#'
     output = "
 #~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
 I..Name.......I.....Dept....I.....................LocationI.....PhoneI
 #~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
 I..John Doe...I....Finance..I.........Los Angeles CA 90089I..555-1555I
 I..Average JoeI..EngineeringI...Somewhere over the rainbowI.......N/AI
-I..1..........I
+I..1..........I.............I.............................I..........I
 #~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
 #~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
 I..홍길동.....I.............I..서울역 3번 출구 김씨 옆자리I..........I
@@ -191,16 +214,45 @@ I.............I...탁상 3부..I.....................맞습니다I..........I
     table << ['홍길동', '탁상 3부', "서울역 3번 출구 김씨 옆자리\n\n맞습니다", 'N/A']
     table.separator!
     table.separator!
+
+    100.times do
+      assert_equal output, table.to_s.strip
+    end
+    table.separator!
+    table.separator!
+    assert_equal [output, separator, separator].join($/), table.to_s.strip
+    assert_equal [output, separator, separator].join($/), table.to_s.strip
+    table << "This should change everything doh!"
+    output = "
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+I..Name..............................I.....Dept....I.....................LocationI.....PhoneI
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+I..John Doe..........................I....Finance..I.........Los Angeles CA 90089I..555-1555I
+I..Average Joe.......................I..EngineeringI...Somewhere over the rainbowI.......N/AI
+I..1.................................I.............I.............................I..........I
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+I..홍길동............................I.............I..서울역 3번 출구 김씨 옆자리I..........I
+I....................................I.............I.............................I.......N/AI
+I....................................I...탁상 3부..I.....................맞습니다I..........I
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#
+I..This should change everything doh!I.............I.............................I..........I
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~#".strip
     assert_equal output, table.to_s.strip
+    assert_equal output, table.to_s.strip
+    table << %w[a b c d e]
+    puts table.to_s
   end
 
   def test_screen_width
     [1, 3, 9, 50, 80].each do |w|
       t = Tabularize.new :screen_width => w
       10.times do
-        t << ['12345'] * 80
+        t << ['12345'] * 20
       end
-      puts t
       assert t.to_s.lines.all? { |line| line.chomp.length <= w }
     end
   end

@@ -1,0 +1,56 @@
+Name        |Dept       |Location                  |Phone   
+John Doe    |Finance    |Los Angeles, CA 90089     |555-1555
+Average Joe |Engineering|Somewhere over the rainbow|N/A     
+Hong Gildong|HR         |Nowhere                   |555-5555
+        Name|       Dept|                  Location|   Phone
+    John Doe|    Finance|     Los Angeles, CA 90089|555-1555
+ Average Joe|Engineering|Somewhere over the rainbow|     N/A
+Hong Gildong|         HR|                   Nowhere|555-5555
+    Name    |   Dept    |         Location         | Phone  
+  John Doe  |  Finance  |  Los Angeles, CA 90089   |555-1555
+Average Joe |Engineering|Somewhere over the rainbow|  N/A   
+Hong Gildong|    HR     |         Nowhere          |555-5555
+Name________|Dept_______|Location__________________|Phone___
+John Doe____|Finance____|Los Angeles, CA 90089_____|555-1555
+Average Joe_|Engineering|Somewhere over the rainbow|N/A_____
+Hong Gildong|HR_________|Nowhere___________________|555-5555
+Name        |Dept       |Location                   |Phone   
+John Doe    |Finance    |Los Angeles, CA 90089      |555-1555
+Average Joe |Engineering|Somewhere over the rainbow |N/A     
+Hong Gildong|HR         |Nowhere                    |555-5555
+홍길동      |탁상 3부   |서울역 3번 출구 김씨 옆자리|N/A     
+        Name|       Dept|                   Location|   Phone
+    John Doe|    Finance|      Los Angeles, CA 90089|555-1555
+ Average Joe|Engineering| Somewhere over the rainbow|     N/A
+Hong Gildong|         HR|                    Nowhere|555-5555
+      홍길동|   탁상 3부|서울역 3번 출구 김씨 옆자리|     N/A
+    Name    |   Dept    |         Location          | Phone  
+  John Doe  |  Finance  |   Los Angeles, CA 90089   |555-1555
+Average Joe |Engineering|Somewhere over the rainbow |  N/A   
+Hong Gildong|    HR     |          Nowhere          |555-5555
+   홍길동   | 탁상 3부  |서울역 3번 출구 김씨 옆자리|  N/A   
+Name________|Dept_______|Location___________________|Phone___
+John Doe____|Finance____|Los Angeles, CA 90089______|555-1555
+Average Joe_|Engineering|Somewhere over the rainbow_|N/A_____
+Hong Gildong|HR_________|Nowhere____________________|555-5555
+홍길동______|탁상 3부___|서울역 3번 출구 김씨 옆자리|N/A_____
+Name        |Dept       |Location                   |Phone   
+[31mJohn Doe[0m    |Finance    |Los Angeles, CA 90089      |555-1555
+Average Joe |[31m[1m[4m[42mEngineering[0m|Somewhere over the rainbow |N/A     
+Hong Gildong|[31m[1mHR[0m         |Nowhere                    |555-5555
+[31m[1m[4m[42m홍길동[0m      |탁상 3부   |서울역 3번 출구 김씨 옆자리|N/A     
+        Name|       Dept|                   Location|   Phone
+    [31mJohn Doe[0m|    Finance|      Los Angeles, CA 90089|555-1555
+ Average Joe|[31m[1m[4m[42mEngineering[0m| Somewhere over the rainbow|     N/A
+Hong Gildong|         [31m[1mHR[0m|                    Nowhere|555-5555
+      [31m[1m[4m[42m홍길동[0m|   탁상 3부|서울역 3번 출구 김씨 옆자리|     N/A
+    Name    |   Dept    |         Location          | Phone  
+  [31mJohn Doe[0m  |  Finance  |   Los Angeles, CA 90089   |555-1555
+Average Joe |[31m[1m[4m[42mEngineering[0m|Somewhere over the rainbow |  N/A   
+Hong Gildong|    [31m[1mHR[0m     |          Nowhere          |555-5555
+   [31m[1m[4m[42m홍길동[0m   | 탁상 3부  |서울역 3번 출구 김씨 옆자리|  N/A   
+Name________|Dept_______|Location___________________|Phone___
+[31mJohn Doe[0m____|Finance____|Los Angeles, CA 90089______|555-1555
+Average Joe_|[31m[1m[4m[42mEngineering[0m|Somewhere over the rainbow_|N/A_____
+Hong Gildong|[31m[1mHR[0m_________|Nowhere____________________|555-5555
+[31m[1m[4m[42m홍길동[0m______|탁상 3부___|서울역 3번 출구 김씨 옆자리|N/A_____

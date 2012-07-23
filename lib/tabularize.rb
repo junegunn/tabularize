@@ -33,6 +33,7 @@ class Tabularize
     @options = DEFAULT_OPTIONS.
                merge(DEFAULT_OPTIONS_GENERATOR).
                merge(options)
+    @cache   = {}
   end
 
   # @since 0.2.0
@@ -51,8 +52,31 @@ class Tabularize
   # @return [String]
   # @since 0.2.0
   def to_s
-    rows = Tabularize.it(@rows, @options)
-    return nil if rows.empty?
+    return nil if @rows.empty?
+
+    # Invalidate cache if needed
+    num_cached_rows = (@cache[:rows] || []).length
+    analysis = Tabularize.analyze(@rows, @options.merge(@cache[:analysis] || {}))
+
+    unless @cache.empty?
+      cmw = @cache[:analysis][:max_widths]
+      mw  = analysis[:max_widths]
+      if mw.zip(cmw).any? { |pair| pair.first > (pair.last || 0) }
+        @cache = {}
+        num_cached_rows = 0
+      else
+        [@seps[@rows.length] - @cache[:last_seps], 0].max.times do
+          @cache[:string_io].puts @cache[:separator]
+        end
+        @cache[:last_seps] = @seps[@rows.length]
+
+        if num_cached_rows == @rows.length
+          return @cache[:string_io].string + @cache[:separator]
+        end
+      end
+    end
+    
+    rows = Tabularize.it(@rows[num_cached_rows..-1], @options.merge(analysis))
 
     h  = @options[:hborder]
     v  = @options[:vborder]
@@ -64,26 +88,28 @@ class Tabularize
     sw = @options[:screen_width]
     el = @options[:ellipsis].length
 
-    separator = ''
-    rows[0].each_with_index do |c, idx|
-      new_sep = separator + i + h * Tabularize.cell_width(c, u, a)
+    separator = @cache[:separator]
+    unless separator
+      separator = ''
+      rows[0].each_with_index do |c, idx|
+        new_sep = separator + i + h * Tabularize.cell_width(c, u, a)
 
-      if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
-        rows = rows.map { |line| line[0, idx] }
-        vl = il = @options[:ellipsis]
-        break
-      else
-        separator = new_sep
+        if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
+          rows = rows.map { |line| line[0, idx] }
+          vl = il = @options[:ellipsis]
+          break
+        else
+          separator = new_sep
+        end
       end
+      separator += il
     end
-    separator += il
 
-    output = StringIO.new
-    output.puts separator
+    output = @cache[:string_io] || StringIO.new.tap { |io| io.puts separator }
     rows.each_with_index do |row, idx|
       row = row.map { |val| val.lines.to_a.map(&:chomp) }
       height = row[0] ? row[0].count : 1
-      @seps[idx].times do
+      @seps[idx + num_cached_rows].times do
         output.puts separator
       end
       (0...height).each do |line|
@@ -94,12 +120,21 @@ class Tabularize
       end
     end
 
-    @seps[rows.length].times do
+    @seps[rows.length + num_cached_rows].times do
       output.puts separator
     end
 
-    output.puts separator
-    output.string
+    @cache = {
+      :analysis  => analysis,
+      :separator => separator,
+      :rows      => rows,
+      :string_io => output,
+      :last_seps => @seps[rows.length]
+    }
+    output.string + separator
+  rescue Exception
+    @cache = {}
+    raise
   end
 
   # Returns the display width of a String
@@ -111,6 +146,41 @@ class Tabularize
   def self.cell_width str, unicode, ansi
     str = str.gsub(/\e\[\d*(?:;\d+)*m/, '') if ansi
     str.send(unicode ? :display_width : :length)
+  end
+
+  # Determines maximum widths of cells and maximum heights of rows
+  def self.analyze data, options = {}
+    unicode     = options[:unicode]
+    ansi        = options[:ansi]
+    max_widths  = (options[:max_widths] || []).dup
+    max_heights = (options[:max_heights] || []).dup
+    rows        = []
+
+    data.each_with_index do |row, ridx|
+      rows << row = [*row].map(&:to_s)
+
+      row.each_with_index do |cell, idx|
+        nlines = 0
+        cell.lines do |c|
+          max_widths[idx] = [ Tabularize.cell_width(c.chomp, unicode, ansi), max_widths[idx] || 0 ].max
+          nlines += 1
+        end
+        max_heights[ridx] = [ nlines, max_heights[ridx] || 1 ].max
+      end
+    end
+
+    num_cells = max_widths.length
+    rows.each do |row|
+      [num_cells - row.length, 0].max.times do
+        row << ''
+      end
+    end
+
+    {
+      :rows        => rows,
+      :max_widths  => max_widths,
+      :max_heights => max_heights,
+    }
   end
 
   # Formats two-dimensional tabular data.
@@ -152,21 +222,10 @@ class Tabularize
       raise ArgumentError.new(":screen_width must be a positive integer")
     end
 
-    rows        = []
-    max_widths  = []
-    max_heights = []
-    table_data.each_with_index do |row, ridx|
-      rows << row = [*row].map(&:to_s)
-
-      row.each_with_index do |cell, idx|
-        nlines = 0
-        cell.lines do |c|
-          max_widths[idx] = [ Tabularize.cell_width(c.chomp, unicode, ansi), max_widths[idx] || 0 ].max
-          nlines += 1
-        end
-        max_heights[ridx] = [ nlines, max_heights[ridx] || 1 ].max
-      end
-    end
+    # Analyze data
+    ret = options[:analysis] || Tabularize.analyze(table_data, options)
+    rows, max_widths, max_heights =
+      [:rows, :max_widths, :max_heights].map { |k| ret[k] }
 
     ridx = -1
     rows.map { |row| 
@@ -175,7 +234,7 @@ class Tabularize
       max_height = max_heights[ridx]
       row.map { |cell|
         idx += 1
-        lines = cell.lines.to_a
+        lines = cell.to_s.lines.to_a
         offset =
           case valign[idx] || valign.last
           when :top

@@ -1,3 +1,8 @@
+0.2.3
+-----
+- Improvment: Caching result of table generator
+- Bug fix/feature: Handling rows of different number of cells
+
 0.2.2
 -----
 - `screen_width` and `ellipsis` options to cut off trailing cells exceeding specified screen width

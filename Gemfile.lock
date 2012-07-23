@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tabularize (0.2.2)
+    tabularize (0.2.3)
       unicode-display_width (~> 0.1.1)
 
 GEM
