@@ -89,14 +89,14 @@ class Tabularize
     el = @options[:ellipsis].length
 
     separator = @cache[:separator]
+    col_count = @cache[:col_count]
     unless separator
       separator = ''
       rows[0].each_with_index do |c, idx|
         new_sep = separator + i + h * Tabularize.cell_width(c, u, a)
 
         if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
-          rows = rows.map { |line| line[0, idx] }
-          vl = il = @options[:ellipsis]
+          col_count = idx
           break
         else
           separator = new_sep
@@ -106,6 +106,10 @@ class Tabularize
     end
 
     output = @cache[:string_io] || StringIO.new.tap { |io| io.puts separator }
+    if col_count
+      rows = rows.map { |line| line[0, col_count] }
+      vl = il = @options[:ellipsis]
+    end
     rows.each_with_index do |row, idx|
       row = row.map { |val| val.lines.to_a.map(&:chomp) }
       height = row[0] ? row[0].count : 1
@@ -127,6 +131,7 @@ class Tabularize
     @cache = {
       :analysis  => analysis,
       :separator => separator,
+      :col_count => col_count,
       :num_rows  => @rows.length,
       :string_io => output,
       :last_seps => @seps[rows.length]

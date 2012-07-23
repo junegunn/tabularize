@@ -1,4 +1,4 @@
-0.2.3
+0.2.4
 -----
 - Improvment: Caching result of table generator
 - Bug fix/feature: Handling rows of different number of cells
