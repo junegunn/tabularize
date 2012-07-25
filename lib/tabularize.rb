@@ -86,7 +86,7 @@ class Tabularize
     u  = @options[:unicode]
     a  = @options[:ansi]
     sw = @options[:screen_width]
-    el = @options[:ellipsis].length
+    el = Tabularize.cell_width(@options[:ellipsis], u, a)
 
     separator = @cache[:separator]
     col_count = @cache[:col_count]
