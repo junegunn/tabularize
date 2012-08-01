@@ -266,4 +266,29 @@ I..This should change everything doh!I.............I............................
       assert t.to_s.lines.all? { |line| %w[+ >].include?(line.chomp.reverse[0, 1]) }
     end
   end
+
+  def test_readme
+    table = Tabularize.new
+    table = Tabularize.new :pad     => '.', :pad_left => 2,  :pad_right => 0,
+                           :border_style => :unicode,
+                           :align   => [:left, :center, :right],
+                           :valign  => [:top, :bottom, :middle, :middle],
+                           :screen_width => 75, :ellipsis => '~'
+    table << %w[Name Dept Location Phone Description]
+    table.separator!
+    table << ['John Doe', 'Finance', 'Los Angeles CA 90089', '555-1555', 'Just a guy']
+    table << ['Average Joe', 'Engineering', 'Somewhere over the rainbow', 'N/A', 'Unknown']
+    table << ['홍길동', '탁상 3부', "서울역 3번 출구 김씨 옆자리\n\n맞습니다", 'N/A', 'No description']
+    assert_equal "
+┌─────────────┬─────────────┬─────────────────────────────┬──────────~
+│..Name.......│.....Dept....│.....................Location│.....Phone~
+├─────────────┼─────────────┼─────────────────────────────┼──────────~
+│..John Doe...│....Finance..│.........Los Angeles CA 90089│..555-1555~
+│..Average Joe│..Engineering│...Somewhere over the rainbow│.......N/A~
+│..홍길동.....│.............│..서울역 3번 출구 김씨 옆자리│..........~
+│.............│.............│.............................│.......N/A~
+│.............│...탁상 3부..│.....................맞습니다│..........~
+└─────────────┴─────────────┴─────────────────────────────┴──────────~
+".strip, table.to_s
+  end
 end

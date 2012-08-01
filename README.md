@@ -46,9 +46,11 @@ puts table
  * `:pad_left` Size of left padding
  * `:pad_right` Size of right padding
 * Border
+ * `:border_style` Predefined border styles. `:ascii` (default) and `:unicode`
+ * `:border_color` ANSI color code for borders
  * `:hborder` Character for horizontal border
  * `:vborder` Character for vertical border
- * `:iborder` Character for intersection point
+ * `:iborder` Array of 9 characters for intersection points. e.g. `%w[┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘]`
 * Alignment
  * `:align` Horizontal alignment. `:left`, `:center`, `:right`, or Array of the three options
  * `:valign` Vertical alignment. `:top`, `:middle`, `:bottom`, or Array of the three options
@@ -57,7 +59,11 @@ puts table
  * `:ellipsis` Ellipsis string when cells are cut off. Default: `>`
 
 ```ruby
+require 'ansi'
+
 table = Tabularize.new :pad     => '.', :pad_left => 2,  :pad_right => 0,
+                       :border_style => :unicode,
+                       :border_color => ANSI::Code.red,
                        :hborder => '~', :vborder => 'I', :iborder => '#',
                        :align   => [:left, :center, :right],
                        :valign  => [:top, :bottom, :middle, :middle],
@@ -71,15 +77,15 @@ puts table
 ```
 
 ```
-#~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~X
-I..Name.......I.....Dept....I.....................LocationI.....PhoneX
-#~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~X
-I..John Doe...I....Finance..I.........Los Angeles CA 90089I..555-1555X
-I..Average JoeI..EngineeringI...Somewhere over the rainbowI.......N/AX
-I..홍길동.....I.............I..서울역 3번 출구 김씨 옆자리I..........X
-I.............I.............I.............................I.......N/AX
-I.............I...탁상 3부..I.....................맞습니다I..........X
-#~~~~~~~~~~~~~#~~~~~~~~~~~~~#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#~~~~~~~~~~X
+┌─────────────┬─────────────┬─────────────────────────────┬──────────~
+│..Name.......│.....Dept....│.....................Location│.....Phone~
+├─────────────┼─────────────┼─────────────────────────────┼──────────~
+│..John Doe...│....Finance..│.........Los Angeles CA 90089│..555-1555~
+│..Average Joe│..Engineering│...Somewhere over the rainbow│.......N/A~
+│..홍길동.....│.............│..서울역 3번 출구 김씨 옆자리│..........~
+│.............│.............│.............................│.......N/A~
+│.............│...탁상 3부..│.....................맞습니다│..........~
+└─────────────┴─────────────┴─────────────────────────────┴──────────~
 ```
 
 Tabularize.it
@@ -206,6 +212,7 @@ There are a few things, however, [tabularize](https://github.com/junegunn/tabula
 - It correctly formats cells containing CJK wide characters.
 - Vertical alignment for multi-line cells
 - Cutting off trailing cells when the width of the output string exceeds specified screen width
+- Customizable border style
 
 Copyright
 ---------

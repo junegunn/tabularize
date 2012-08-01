@@ -1,3 +1,14 @@
+0.2.6
+-----
+- Customizable border
+```ruby
+  :hborder      => '─',
+  :vborder      => '│',
+  :iborder      => %w[┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘],
+```
+- `:border_color`
+- Predefined border styles. `:border_style => :unicode`
+
 0.2.5
 -----
 - Minor bug fixes

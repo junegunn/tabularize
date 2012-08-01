@@ -1,21 +1,22 @@
+# encoding: utf-8
+
 require "tabularize/version"
 require 'stringio'
 require 'unicode/display_width'
 
 class Tabularize
   DEFAULT_OPTIONS = {
-    :align     => :left,
-    :valign    => :top,
-    :pad       => ' ',
-    :pad_left  => 0,
-    :pad_right => 0,
+    :align        => :left,
+    :valign       => :top,
+    :pad          => ' ',
+    :pad_left     => 0,
+    :pad_right    => 0,
 
-    :hborder   => '-',
-    :vborder   => '|',
-    :iborder   => '+',
+    :border_style => :ascii,
+    :border_color => nil,
 
-    :unicode   => true,
-    :ansi      => true,
+    :unicode      => true,
+    :ansi         => true,
 
     :ellipsis     => '>',
     :screen_width => nil,
@@ -26,6 +27,19 @@ class Tabularize
     :pad_right => 1,
   }
 
+  BORDER_STYLE = {
+    :ascii => {
+      :hborder      => '-',
+      :vborder      => '|',
+      :iborder      => %w[+ + + + + + + + +],
+    },
+    :unicode => {
+      :hborder      => '─',
+      :vborder      => '│',
+      :iborder      => %w[┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘],
+    }
+  }
+
   # @since 0.2.0
   def initialize options = {}
     @rows    = []
@@ -33,6 +47,14 @@ class Tabularize
     @options = DEFAULT_OPTIONS.
                merge(DEFAULT_OPTIONS_GENERATOR).
                merge(options)
+    if @options[:border_style]
+      @options = BORDER_STYLE[@options[:border_style]].merge(@options)
+
+      # Backward-compatibility
+      unless @options[:iborder].is_a?(Array)
+        @options[:iborder] = [@options[:iborder]] * 9
+      end
+    end
     @cache   = {}
   end
 
@@ -66,12 +88,12 @@ class Tabularize
         num_cached_rows = 0
       else
         [@seps[@rows.length] - @cache[:last_seps], 0].max.times do
-          @cache[:string_io].puts @cache[:separator]
+          @cache[:string_io].puts @cache[:separators][1]
         end
         @cache[:last_seps] = @seps[@rows.length]
 
         if num_cached_rows == @rows.length
-          return @cache[:string_io].string + @cache[:separator]
+          return @cache[:string_io].string + @cache[:separators].last
         end
       end
     end
@@ -80,63 +102,70 @@ class Tabularize
 
     h  = @options[:hborder]
     v  = @options[:vborder]
-    i  = @options[:iborder]
     vl = @options[:vborder]
-    il = @options[:iborder]
+    i9 = @options[:iborder]
+    e  = @options[:ellipsis]
+    c  = @options[:border_color] || ''
+    r  = c.empty? ? '' : "\e[0m"
     u  = @options[:unicode]
     a  = @options[:ansi]
     sw = @options[:screen_width]
-    el = Tabularize.cell_width(@options[:ellipsis], u, a)
+    el = Tabularize.cell_width(e, u, a)
 
-    separator = @cache[:separator]
+    separators = @cache[:separators]
     col_count = @cache[:col_count]
-    unless separator
-      separator = ''
-      rows[0].each_with_index do |c, idx|
-        new_sep = separator + i + h * Tabularize.cell_width(c, u, a)
+    separators ||= 
+      Array.new(3) {''}.zip(i9.each_slice(3)).map { |separator, i3|
+        rows[0].each_with_index do |c, idx|
+          new_sep = separator + i3[idx == 0 ? 0 : 1] + h * Tabularize.cell_width(c, u, a)
 
-        if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
-          col_count = idx
-          break
-        else
-          separator = new_sep
+          if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
+            col_count = idx
+            break
+          else
+            separator = new_sep
+          end
         end
-      end
-      separator += il
-    end
+        separator += col_count ? e : i3.last
+        if c
+          c + separator + r
+        else
+          separator
+        end
+      }
 
-    output = @cache[:string_io] || StringIO.new.tap { |io| io.puts separator }
+    output = @cache[:string_io] || StringIO.new.tap { |io| io.puts separators.first }
     if col_count
       rows = rows.map { |line| line[0, col_count] }
-      vl = il = @options[:ellipsis]
+      vl = e
     end
     rows.each_with_index do |row, idx|
       row = row.map { |val| val.lines.to_a.map(&:chomp) }
       height = row[0] ? row[0].count : 1
       @seps[idx + num_cached_rows].times do
-        output.puts separator
+        output.puts separators[1]
       end
       (0...height).each do |line|
-        output.print v unless row.empty?
+        output.print c + v + r unless row.empty?
         output.puts row.map { |lines|
           lines[line] || @options[:pad] * Tabularize.cell_width(lines[0], u, a)
-        }.join(v) + vl
+        }.join(c + v + r) + c + vl + r
       end
     end
 
     @seps[rows.length + num_cached_rows].times do
-      output.puts separator
+      output.puts separators[1]
     end
 
     @cache = {
-      :analysis  => analysis,
-      :separator => separator,
-      :col_count => col_count,
-      :num_rows  => @rows.length,
-      :string_io => output,
-      :last_seps => @seps[rows.length]
+      :analysis   => analysis,
+      :separators => separators,
+      :col_count  => col_count,
+      :num_rows   => @rows.length,
+      :string_io  => output,
+      :last_seps  => @seps[rows.length]
     }
-    output.string + separator
+    output.string + separators.last
   rescue Exception
     @cache = {}
     raise
