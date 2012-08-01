@@ -66,7 +66,7 @@ table = Tabularize.new :pad     => '.', :pad_left => 2,  :pad_right => 0,
                        :border_color => ANSI::Code.red,
                        :align   => [:left, :center, :right],
                        :valign  => [:top, :bottom, :middle, :middle],
-                       :screen_width => 75, :ellipsis => 'X'
+                       :screen_width => 75, :ellipsis => '~'
 table << %w[Name Dept Location Phone Description]
 table.separator!
 table << ['John Doe', 'Finance', 'Los Angeles CA 90089', '555-1555', 'Just a guy']
