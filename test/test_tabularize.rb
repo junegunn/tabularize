@@ -263,7 +263,7 @@ I..This should change everything doh!I.............I............................
       t << %w[12345]
       puts t.to_s
       assert t.to_s.lines.all? { |line| line.chomp.length <= w }
-      assert t.to_s.lines.all? { |line| %w[+ >].include?(line.chomp.reverse[0, 1]) }
+      assert t.to_s.lines.all? { |line| line.chomp.reverse[0, 1] == '>' }
     end
   end
 

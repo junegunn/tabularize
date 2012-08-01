@@ -134,7 +134,10 @@ class Tabularize
         end
       }
 
-    output = @cache[:string_io] || StringIO.new.tap { |io| io.puts separators.first }
+    output = @cache[:string_io] || StringIO.new.tap { |io| 
+      io.set_encoding 'UTF-8'
+      io.puts separators.first
+    }
     if col_count
       rows = rows.map { |line| line[0, col_count] }
       vl = e
