@@ -119,7 +119,7 @@ class Tabularize
         rows[0].each_with_index do |ch, idx|
           new_sep = separator + i3[idx == 0 ? 0 : 1] + h * Tabularize.cell_width(ch, u, a)
 
-          if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
+          if sw && Tabularize.cell_width(new_sep, true, true) > sw - el
             col_count = idx
             break
           else

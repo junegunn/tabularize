@@ -64,7 +64,6 @@ require 'ansi'
 table = Tabularize.new :pad     => '.', :pad_left => 2,  :pad_right => 0,
                        :border_style => :unicode,
                        :border_color => ANSI::Code.red,
-                       :hborder => '~', :vborder => 'I', :iborder => '#',
                        :align   => [:left, :center, :right],
                        :valign  => [:top, :bottom, :middle, :middle],
                        :screen_width => 75, :ellipsis => 'X'

@@ -1,3 +1,7 @@
+0.2.8
+-----
+- 1.8 compatibility
+
 0.2.7
 -----
 - Customizable border

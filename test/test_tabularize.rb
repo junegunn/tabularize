@@ -261,16 +261,15 @@ I..This should change everything doh!I.............I............................
       10.times do
         t << ['12345'] * 20
       end
-      assert t.to_s.lines.all? { |line| line.chomp.length <= w }
+      assert t.to_s.lines.all? { |line| (w-9..w).include? line.chomp.length }
       t << %w[12345]
       puts t.to_s
-      assert t.to_s.lines.all? { |line| line.chomp.length <= w }
+      assert t.to_s.lines.all? { |line| (w-9..w).include? line.chomp.length }
       assert t.to_s.lines.all? { |line| line.chomp.reverse[0, 1] == '>' }
     end
   end
 
   def test_readme
-    table = Tabularize.new
     table = Tabularize.new :pad     => '.', :pad_left => 2,  :pad_right => 0,
                            :border_style => :unicode,
                            :align   => [:left, :center, :right],
@@ -292,5 +291,11 @@ I..This should change everything doh!I.............I............................
 │.............│...탁상 3부..│.....................맞습니다│..........~
 └─────────────┴─────────────┴─────────────────────────────┴──────────~
 ".strip, table.to_s
+  end
+
+  def test_unicode_border_with_screen_width
+    table = Tabularize.new :border_style => :unicode, :unicode => false, :screen_width => 200
+    table << %w[abcde] * 100
+    assert table.to_s.lines.first.display_width > 190
   end
 end
