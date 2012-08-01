@@ -118,6 +118,8 @@ class TestTabularize < Test::Unit::TestCase
 
   # TODO: Need assertion
   def test_tabularize_csv
+    return if RUBY_VERSION =~ /^1\.8\./
+
     sio = StringIO.new
 
     {
@@ -141,7 +143,7 @@ class TestTabularize < Test::Unit::TestCase
 
   def test_invalid_arguments
     assert_raise(ArgumentError) { Tabularize.it(5) }
-    assert_raise(ArgumentError) { Tabularize.it("hello") }
+    assert_raise(ArgumentError) { Tabularize.it("hello") } unless RUBY_VERSION =~ /^1\.8\./
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :align => :noidea) }
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :valign => :noidea) }
     assert_raise(ArgumentError) { Tabularize.it([1, 2, 3], :align => [:center, :top]) }

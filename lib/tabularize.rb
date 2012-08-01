@@ -115,9 +115,9 @@ class Tabularize
     separators = @cache[:separators]
     col_count = @cache[:col_count]
     separators ||= 
-      Array.new(3) {''}.zip(i9.each_slice(3)).map { |separator, i3|
-        rows[0].each_with_index do |c, idx|
-          new_sep = separator + i3[idx == 0 ? 0 : 1] + h * Tabularize.cell_width(c, u, a)
+      Array.new(3) {''}.zip(i9.each_slice(3).to_a).map { |separator, i3|
+        rows[0].each_with_index do |ch, idx|
+          new_sep = separator + i3[idx == 0 ? 0 : 1] + h * Tabularize.cell_width(ch, u, a)
 
           if sw && Tabularize.cell_width(new_sep, u, a) > sw - el
             col_count = idx
@@ -135,7 +135,7 @@ class Tabularize
       }
 
     output = @cache[:string_io] || StringIO.new.tap { |io| 
-      io.set_encoding 'UTF-8'
+      io.set_encoding 'UTF-8' if io.respond_to? :set_encoding
       io.puts separators.first
     }
     if col_count
