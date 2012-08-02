@@ -54,7 +54,7 @@ puts table
 * Alignment
  * `:align` Horizontal alignment. `:left`, `:center`, `:right`, or Array of the three options
  * `:valign` Vertical alignment. `:top`, `:middle`, `:bottom`, or Array of the three options
-* Ellipses: Cut off trailing cells if the total width exceeds the specified screen width
+* Ellipsis: Cut off trailing cells if the total width exceeds the specified screen width
  * `:screen_width` The number of columns for the current terminal. Default: unlimited.
  * `:ellipsis` Ellipsis string when cells are cut off. Default: `>`
 
