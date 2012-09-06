@@ -198,7 +198,7 @@ class Tabularize
 
       row.each_with_index do |cell, idx|
         nlines = 0
-        cell.lines do |c|
+        (cell.empty? ? [''] : cell.lines).each do |c|
           max_widths[idx] = [ Tabularize.cell_width(c.chomp, unicode, ansi), max_widths[idx] || 0 ].max
           nlines += 1
         end

@@ -1,3 +1,7 @@
+0.2.9
+-----
+- Bug fix: exception on empty column
+
 0.2.8
 -----
 - 1.8 compatibility

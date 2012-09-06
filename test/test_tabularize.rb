@@ -298,4 +298,19 @@ I..This should change everything doh!I.............I............................
     table << %w[abcde] * 100
     assert table.to_s.lines.first.display_width > 190
   end
+
+  def test_it_nil_column
+    assert_equal [['1 ', '', '2 '], ['11', '', '22']], Tabularize.it([[1, nil, 2], [11, nil, 22]])
+  end
+
+  def test_analyze_nil_column
+    assert_equal [2, 0, 2], Tabularize.analyze([[1, nil, 2], [11, nil, 22]])[:max_widths]
+  end
+
+  def test_tabualarize_nil_column
+    table = Tabularize.new
+    table << [1, nil, 2]
+    table << [11, nil, 22]
+    table.to_s
+  end
 end
