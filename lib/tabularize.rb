@@ -1,8 +1,12 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
-require "tabularize/version"
+# rubocop:disable Style/HashSyntax
+
+require 'tabularize/version'
 require 'stringio'
 require 'unicode/display_width'
+require 'English'
 
 class Tabularize
   DEFAULT_OPTIONS = {
@@ -19,34 +23,34 @@ class Tabularize
     :ansi         => true,
 
     :ellipsis     => '>',
-    :screen_width => nil,
-  }
+    :screen_width => nil
+  }.freeze
 
   DEFAULT_OPTIONS_GENERATOR = {
     :pad_left  => 1,
-    :pad_right => 1,
-  }
+    :pad_right => 1
+  }.freeze
 
   BORDER_STYLE = {
     :ascii => {
       :hborder      => '-',
       :vborder      => '|',
-      :iborder      => %w[+ + + + + + + + +],
+      :iborder      => %w[+ + + + + + + + +]
     },
     :unicode => {
       :hborder      => '─',
       :vborder      => '│',
-      :iborder      => %w[┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘],
+      :iborder      => %w[┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘]
     }
-  }
+  }.freeze
 
   # @since 0.2.0
-  def initialize options = {}
+  def initialize(options = {})
     @rows    = []
     @seps    = Hash.new { |h, k| h[k] = 0 }
-    @options = DEFAULT_OPTIONS.
-               merge(DEFAULT_OPTIONS_GENERATOR).
-               merge(options)
+    @options = DEFAULT_OPTIONS
+               .merge(DEFAULT_OPTIONS_GENERATOR)
+               .merge(options)
     if @options[:border_style]
       @options = BORDER_STYLE[@options[:border_style]].merge(@options)
 
@@ -55,7 +59,7 @@ class Tabularize
         @options[:iborder] = [@options[:iborder]] * 9
       end
     end
-    @cache   = {}
+    @cache = {}
   end
 
   # @since 0.2.0
@@ -63,10 +67,10 @@ class Tabularize
     @seps[@rows.length] += 1
     nil
   end
-  
+
   # @param [Array] row
   # @since 0.2.0
-  def << row
+  def <<(row)
     @rows << row
     nil
   end
@@ -78,7 +82,9 @@ class Tabularize
 
     # Invalidate cache if needed
     num_cached_rows = @cache[:num_rows] || 0
-    analysis = Tabularize.analyze(@rows[num_cached_rows..-1], @options.merge(@cache[:analysis] || {}))
+    analysis = Tabularize.analyze(
+      @rows[num_cached_rows..-1], @options.merge(@cache[:analysis] || {})
+    )
 
     unless @cache.empty?
       cmw = @cache[:analysis][:max_widths]
@@ -97,7 +103,7 @@ class Tabularize
         end
       end
     end
-    
+
     rows = Tabularize.it(@rows[num_cached_rows..-1], @options.merge(analysis))
 
     h  = @options[:hborder]
@@ -114,10 +120,12 @@ class Tabularize
 
     separators = @cache[:separators]
     col_count = @cache[:col_count]
-    separators ||= 
-      Array.new(3) {''}.zip(i9.each_slice(3).to_a).map { |separator, i3|
+    separators ||=
+      Array.new(3) { '' }.zip(i9.each_slice(3).to_a).map do |separator, i3|
         rows[0].each_with_index do |ch, idx|
-          new_sep = separator + i3[idx == 0 ? 0 : 1] + h * Tabularize.cell_width(ch, u, a)
+          new_sep = separator +
+                    i3[idx.zero? ? 0 : 1] +
+                    h * Tabularize.cell_width(ch, u, a)
 
           if sw && Tabularize.cell_width(new_sep, true, true) > sw - el
             col_count = idx
@@ -132,12 +140,12 @@ class Tabularize
         else
           separator
         end
-      }
+      end
 
-    output = @cache[:string_io] || StringIO.new.tap { |io| 
+    output = @cache[:string_io] || StringIO.new.tap do |io|
       io.set_encoding 'UTF-8' if io.respond_to? :set_encoding
       io.puts separators.first
-    }
+    end
     if col_count
       rows = rows.map { |line| line[0, col_count] }
       vl = e
@@ -169,24 +177,26 @@ class Tabularize
       :last_seps  => @seps[rows.length]
     }
     output.string + separators.last
-  rescue Exception
+  rescue StandardError
     @cache = {}
     raise
   end
 
   # Returns the display width of a String
   # @param [String] str Input String
-  # @param [Boolean] unicode Set to true when the given String can include CJK wide characters
-  # @param [Boolean] ansi Set to true When the given String can include ANSI codes
+  # @param [Boolean] unicode Set to true when the given String can include CJK
+  #   wide characters
+  # @param [Boolean] ansi Set to true When the given String can include ANSI
+  #   codes
   # @return [Integer] Display width of the given String
   # @since 0.2.0
-  def self.cell_width str, unicode, ansi
+  def self.cell_width(str, unicode, ansi)
     str = str.gsub(/\e\[\d*(?:;\d+)*m/, '') if ansi
     str.send(unicode ? :display_width : :length)
   end
 
   # Determines maximum widths of cells and maximum heights of rows
-  def self.analyze data, options = {}
+  def self.analyze(data, options = {})
     unicode     = options[:unicode]
     ansi        = options[:ansi]
     max_widths  = (options[:max_widths] || []).dup
@@ -199,10 +209,12 @@ class Tabularize
       row.each_with_index do |cell, idx|
         nlines = 0
         (cell.empty? ? [''] : cell.lines).each do |c|
-          max_widths[idx] = [ Tabularize.cell_width(c.chomp, unicode, ansi), max_widths[idx] || 0 ].max
+          max_widths[idx] =
+            [Tabularize.cell_width(c.chomp, unicode, ansi),
+             max_widths[idx] || 0].max
           nlines += 1
         end
-        max_heights[ridx] = [ nlines, max_heights[ridx] || 1 ].max
+        max_heights[ridx] = [nlines, max_heights[ridx] || 1].max
       end
     end
 
@@ -216,18 +228,18 @@ class Tabularize
     {
       :rows        => rows,
       :max_widths  => max_widths,
-      :max_heights => max_heights,
+      :max_heights => max_heights
     }
   end
 
   # Formats two-dimensional tabular data.
-  # One-dimensional data (e.g. Array of Strings) is treated as tabular data 
+  # One-dimensional data (e.g. Array of Strings) is treated as tabular data
   # of which each row has only one column.
   # @param [Enumerable] table_data
   # @param [Hash] options Formatting options.
   # @return [Array] Two-dimensional Array of formatted cells.
-  def self.it table_data, options = {}
-    raise ArgumentError.new("Not enumerable") unless 
+  def self.it(table_data, options = {})
+    raise ArgumentError, 'Not enumerable' unless
         table_data.respond_to?(:each)
 
     options = DEFAULT_OPTIONS.merge(options)
@@ -240,36 +252,34 @@ class Tabularize
     ansi    = options[:ansi]
     screenw = options[:screen_width]
 
-    unless pad.length == 1
-      raise ArgumentError.new("Invalid padding") 
-    end
+    raise ArgumentError, 'Invalid padding' unless pad.length == 1
     unless padl.is_a?(Integer) && padl >= 0
-      raise ArgumentError.new(":pad_left must be a non-negative integer")
+      raise ArgumentError, ':pad_left must be a non-negative integer'
     end
     unless padr.is_a?(Integer) && padr >= 0
-      raise ArgumentError.new(":pad_right must be a non-negative integer")
+      raise ArgumentError, ':pad_right must be a non-negative integer'
     end
-    unless align.all? { |a| [:left, :right, :center].include?(a) }
-      raise ArgumentError.new("Invalid alignment")
+    unless align.all? { |a| %i[left right center].include?(a) }
+      raise ArgumentError, 'Invalid alignment'
     end
-    unless valign.all? { |a| [:top, :bottom, :middle].include?(a) }
-      raise ArgumentError.new("Invalid vertical alignment")
+    unless valign.all? { |a| %i[top bottom middle].include?(a) }
+      raise ArgumentError, 'Invalid vertical alignment'
     end
     unless screenw.nil? || (screenw.is_a?(Integer) && screenw > 0)
-      raise ArgumentError.new(":screen_width must be a positive integer")
+      raise ArgumentError, ':screen_width must be a positive integer'
     end
 
     # Analyze data
     ret = options[:analysis] || Tabularize.analyze(table_data, options)
     rows, max_widths, max_heights =
-      [:rows, :max_widths, :max_heights].map { |k| ret[k] }
+      %i[rows max_widths max_heights].map { |k| ret[k] }
 
     ridx = -1
-    rows.map { |row| 
+    rows.map do |row|
       ridx += 1
       idx = -1
       max_height = max_heights[ridx]
-      row.map { |cell|
+      row.map do |cell|
         idx += 1
         lines = cell.to_s.lines.to_a
         offset =
@@ -282,10 +292,10 @@ class Tabularize
             (max_height - lines.length) / 2
           end
 
-        (0...max_height).map { |ln|
+        (0...max_height).map do |ln|
           ln -= offset
-          str = (ln >= 0 && lines[ln]) ? lines[ln].chomp : (pad * max_widths[idx])
-          alen = 
+          str = ln >= 0 && lines[ln] ? lines[ln].chomp : (pad * max_widths[idx])
+          alen =
             if ansi
               Tabularize.cell_width(str, false, false) -
                 Tabularize.cell_width(str, false, true)
@@ -296,7 +306,7 @@ class Tabularize
 
           w = max_widths[idx]
           w += str.length - str.display_width if unicode
-          pad * padl + 
+          pad * padl +
             case align[idx] || align.last
             when :left
               str.ljust(w + alen, pad)
@@ -305,9 +315,9 @@ class Tabularize
             when :center
               str.rjust((w - slen) / 2 + slen + alen, pad).ljust(w + alen, pad)
             end +
-              pad * padr
-        }.join($/)
-      }
-    }
+            pad * padr
+        end.join($RS)
+      end
+    end
   end
 end
