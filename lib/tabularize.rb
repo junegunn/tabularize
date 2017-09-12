@@ -178,7 +178,7 @@ class Tabularize
   # @param [String] str Input String
   # @param [Boolean] unicode Set to true when the given String can include CJK wide characters
   # @param [Boolean] ansi Set to true When the given String can include ANSI codes
-  # @return [Fixnum] Display width of the given String
+  # @return [Integer] Display width of the given String
   # @since 0.2.0
   def self.cell_width str, unicode, ansi
     str = str.gsub(/\e\[\d*(?:;\d+)*m/, '') if ansi
@@ -243,10 +243,10 @@ class Tabularize
     unless pad.length == 1
       raise ArgumentError.new("Invalid padding") 
     end
-    unless padl.is_a?(Fixnum) && padl >= 0
+    unless padl.is_a?(Integer) && padl >= 0
       raise ArgumentError.new(":pad_left must be a non-negative integer")
     end
-    unless padr.is_a?(Fixnum) && padr >= 0
+    unless padr.is_a?(Integer) && padr >= 0
       raise ArgumentError.new(":pad_right must be a non-negative integer")
     end
     unless align.all? { |a| [:left, :right, :center].include?(a) }
@@ -255,7 +255,7 @@ class Tabularize
     unless valign.all? { |a| [:top, :bottom, :middle].include?(a) }
       raise ArgumentError.new("Invalid vertical alignment")
     end
-    unless screenw.nil? || (screenw.is_a?(Fixnum) && screenw > 0)
+    unless screenw.nil? || (screenw.is_a?(Integer) && screenw > 0)
       raise ArgumentError.new(":screen_width must be a positive integer")
     end
 
