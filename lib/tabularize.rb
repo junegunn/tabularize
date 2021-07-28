@@ -6,6 +6,7 @@
 require 'tabularize/version'
 require 'stringio'
 require 'unicode/display_width'
+require 'unicode/display_width/string_ext'
 require 'English'
 
 class Tabularize
