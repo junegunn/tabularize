@@ -298,7 +298,7 @@ class TestTabularize < Minitest::Test
       border_style: :unicode, unicode: false, screen_width: 200
     )
     table << %w[abcde] * 100
-    assert table.to_s.lines.first.display_width > 190
+    assert Unicode::DisplayWidth.of(table.to_s.lines.first) > 190
   end
 
   def test_it_nil_column

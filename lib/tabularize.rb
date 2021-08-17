@@ -6,7 +6,6 @@
 require 'tabularize/version'
 require 'stringio'
 require 'unicode/display_width'
-require 'unicode/display_width/string_ext'
 require 'English'
 
 class Tabularize
@@ -193,7 +192,7 @@ class Tabularize
   # @since 0.2.0
   def self.cell_width(str, unicode, ansi)
     str = str.gsub(/\e\[\d*(?:;\d+)*m/, '') if ansi
-    str.send(unicode ? :display_width : :length)
+    unicode ? Unicode::DisplayWidth.of(str) : str.length
   end
 
   # Determines maximum widths of cells and maximum heights of rows
@@ -306,7 +305,7 @@ class Tabularize
           slen = str.length - alen
 
           w = max_widths[idx]
-          w += str.length - str.display_width if unicode
+          w += str.length - Unicode::DisplayWidth.of(str) if unicode
           pad * padl +
             case align[idx] || align.last
             when :left

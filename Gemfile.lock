@@ -7,16 +7,17 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    minitest (5.10.3)
+    minitest (5.14.4)
+    rake (13.0.6)
     unicode-display_width (2.0.0)
 
 PLATFORMS
-  java
-  ruby
+  x86_64-darwin-20
 
 DEPENDENCIES
   minitest
+  rake
   tabularize!
 
 BUNDLED WITH
-   1.15.4
+   2.2.25
